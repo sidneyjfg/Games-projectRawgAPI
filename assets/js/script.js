@@ -6,16 +6,95 @@ onload = () => {
   document.querySelector("#btn-1").onclick = () => plataformas();
 };
 
-async function searchId(id){
-  
+
+// Localize o elemento de entrada de pesquisa
+const searchInput = document.querySelector('input[type="text"]');
+
+// Adicione um ouvinte de evento para o evento 'input' em vez de 'change'
+searchInput.addEventListener('input', function() {
+    const searchTerm = searchInput.value.trim();
+
+    // Verifique se o termo de pesquisa não está vazio
+    if (searchTerm !== '') {
+        // Limpe os resultados anteriores
+        clearResults();
+
+        // Faça a chamada para a API Rawg para obter os resultados da busca
+        searchGames(searchTerm);
+    } else {
+        // Termo de pesquisa vazio, limpe os resultados
+        clearResults();
+    }
+});
+
+// Função para limpar os resultados anteriores
+function clearResults() {
+    const cardsContainer = document.getElementById('cards');
+    cardsContainer.innerHTML = '';
+}
+
+// Função para fazer a chamada à API Rawg e exibir os resultados
+function searchGames(searchTerm) {
+    // Configure a URL da API com o termo de pesquisa
+    const apiKey = 'd1ee93d1345647bda344638c5e8fdd2c';
+    const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${encodeURIComponent(searchTerm)}`;
+    console.log(searchTerm);
+    // Faça a chamada à API usando Fetch
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            // Verifique se há resultados
+            console.log(data.results);
+            if (data.results.length > 0) {
+                // Itere sobre os resultados e crie os elementos de exibição
+                data.results.forEach(game => {
+                    const card = createGameCard(game);
+                    const cardsContainer = document.getElementById('cards');
+                    cardsContainer.appendChild(card);
+                });
+            } else {
+                // Nenhum resultado encontrado
+                const cardsContainer = document.getElementById('cards');
+                const noResultsMessage = document.createElement('p');
+                noResultsMessage.textContent = 'Nenhum resultado encontrado.';
+                cardsContainer.appendChild(noResultsMessage);
+            }
+        })
+        .catch(error => {
+            console.log('Ocorreu um erro na busca:', error);
+        });
+}
+
+// Função para criar o elemento de card do jogo
+function createGameCard(game) {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    // Crie os elementos de exibição para o card do jogo (título, imagem, descrição, etc.)
+    // Você pode personalizar isso de acordo com a estrutura do seu HTML
+    return card;
+}
+
+
+// Função para criar o elemento de card do jogo
+function createGameCard(game) {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    // Crie os elementos de exibição para o card do jogo (título, imagem, descrição, etc.)
+    // Você pode personalizar isso de acordo com a estrutura do seu HTML
+    return card;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+async function searchId(id) {
+
   const url = `https://api.rawg.io/api/games/${id}?key=d1ee93d1345647bda344638c5e8fdd2c`;
   let data = await fetch(url).then((res) => res.json());
   let container = document.getElementById("details");
-  
+
   let title = data.name;
-  
+
   let str = "";
-  str+=`<div class="x"
+  str += `<div class="x"
       <div class="card" style="width: 18rem;">
       <img src="${data.background_image}" class="card-img-top" alt="...">
       <div class="card-body">
@@ -31,7 +110,7 @@ async function searchId(id){
     </div>
   </div>`
   console.log(data);
-  container.innerHTML=str;
+  container.innerHTML = str;
 }
 
 var url0 =
@@ -76,9 +155,9 @@ async function plataformas() {
             <p class="card-text">
                 <b>Principais jogos</b>
             <ul class="lista">`;
-            for (let i = 0; i < 3; i++) {
-              str += `<li>${plataforma.games[i].name}</li>`;
-            }
+    for (let i = 0; i < 3; i++) {
+      str += `<li>${plataforma.games[i].name}</li>`;
+    }
     str += `</ul>
             </p>
             <p class="card-text text-end">Mais detalhes ...</p>
